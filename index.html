@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <script src="js/threejs/three.min.js"></script>
+    <script src="js/threejs/Detector.js"></script>
+    <script src="js/threejs/controls/TrackballControls.js"></script>
+    <link rel="stylesheet" href="css/style.css"/>
+</head>
+
+<body>
+    <div id="threejs"></div>
+</body>
+
+<script>
+var WIDTH = window.innerWidth,
+    HEIGHT = window.innerHeight;
+var VIEW_ANGLE = 45,
+    ASPECT = WIDTH / HEIGHT,
+    NEAR = 1,
+    FAR = 10000;
+var container, renderer, scene, camera, controls;
+
+
+if ( !init() ) animate();
+
+
+function init() {
+    // get the DOM element to attach to
+    container = document.getElementById( 'threejs' );
+
+    // make sure browser webgl compatable
+    if( Detector.webgl ){
+        renderer = new THREE.WebGLRenderer({
+            antialias             : true,
+            preserveDrawingBuffer : true
+        });
+        renderer.setClearColor( 0x222222, 1 );
+    } else {
+        Detector.addGetWebGLMessage();
+        return true;
+    }
+
+    // append renderer to container
+    renderer.setSize( window.innerWidth, window.innerHeight );
+    document.getElementById( 'threejs' ).appendChild( renderer.domElement );
+
+    // create a scene
+    scene = new THREE.Scene();
+
+    // put a camera in the scene
+    camera = new THREE.PerspectiveCamera( VIEW_ANGLE, ASPECT, NEAR, FAR );
+    camera.position.set( 0, 0, 5 );
+    scene.add( camera );
+
+    // add controls
+    controls = new THREE.TrackballControls( camera );
+    controls.rotateSpeed = 1.0;
+    controls.zoomSpeed = 1.2;
+    controls.panSpeed = 0.8;
+    controls.noZoom = false;
+    controls.noPan = true;
+    controls.staticMoving = true;
+    controls.dynamicDampingFactor = 0.3;
+
+    // rerender scene on change
+    controls.addEventListener( 'change', render );
+
+    // handle window resizing
+    window.addEventListener('resize', onWindowResize, false);
+
+    // torus
+    var geometry = new THREE.TorusGeometry( 1, 0.42 );
+    var material = new THREE.MeshNormalMaterial();
+    var mesh     = new THREE.Mesh( geometry, material );
+    scene.add( mesh );
+
+    // initial scene render
+    render();
+}
+
+function animate() {
+    requestAnimationFrame( animate );
+    controls.update();
+}
+
+function render() {
+    renderer.render( scene, camera );
+}
+
+function onWindowResize() {
+    WIDTH = window.innerWidth;
+    HEIGHT = window.innerHeight;
+
+    camera.aspect = WIDTH / HEIGHT;
+    camera.updateProjectionMatrix();
+
+    renderer.setSize( WIDTH, HEIGHT );
+
+    controls.handleResize();
+    render();
+}
+</script>
+</html>
