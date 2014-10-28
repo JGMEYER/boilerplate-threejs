@@ -1,2 +1,2 @@
-web-music-visualizer
+boilerplate-threejs
 ====================
